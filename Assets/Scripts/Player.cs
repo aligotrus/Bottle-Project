@@ -4,53 +4,73 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    [SerializeField]private float timeLeft;
+
+    [SerializeField] private float _timeLeft;
+    [SerializeField] private float _power = 0f;
+
     private Rigidbody _rigidbody;
-    [SerializeField] private float power = 0f;
-    public bool isJumped { get; private set; }
-    private readonly Vector3 jumpDeriction = Vector3.up;
+    private readonly Vector3 jumpDerictionY = Vector3.up;
+    private readonly Vector3 jumpDerictionZ = Vector3.one;
+
+    public bool IsJumped { get; private set; }
 
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    private void Update()
     {
-        timeLeft -= Time.deltaTime;
-        if (timeLeft < 0)
+        _timeLeft -= Time.deltaTime;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _power += 1f;
+        }
+        if (_timeLeft <= 0)
         {
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                power += 100f;
-                this.Jump();
+                _power += 1f;
+                Jump();
+                if (IsJumped == true)
+                {
+                    _power = 0;
+                }
             }
-        }
-       
-
-
+        } 
     }
-    private void Jump()
+
+    private void OnCollisionEnter(Collision other)
     {
-        if (this.isJumped)
+        if (other.gameObject.TryGetComponent(out Ground ground))
         {
-            this._rigidbody.AddForce(this.jumpDeriction * this.power, ForceMode.Impulse);
+            if (ground)
+                IsJumped = true;
         }
     }
     
 
-    private void OnCollisionEnter(Collision other)
-    {
-        var ground = other.gameObject.GetComponentInParent<Ground>();
-        if (ground)
-            this.isJumped = true;
-    }
-
     private void OnCollisionExit(Collision other)
     {
-        var ground = other.gameObject.GetComponentInParent<Ground>();
-        if (ground)
-            this.isJumped = false;
+        if (other.gameObject.TryGetComponent(out Ground ground))
+        {
+
+            if (ground)
+                IsJumped = false;
+        }
     }
+
+    private void Jump()
+    {
+        if (IsJumped)
+        {
+            _rigidbody.AddForce(jumpDerictionY * _power, ForceMode.Impulse);
+            _rigidbody.AddForce(jumpDerictionZ * _power,ForceMode.Impulse);
+        }
+    }
+
+
+    
 }
 
