@@ -6,31 +6,33 @@ using TMPro;
 
 public class Ñounter : MonoBehaviour
 {
-    private GameObject Player;
+    [SerializeField]private GameObject Player;
+
     private float startPosition;
     private float endPosition;
-    private float score;
+    private int score;
     
     public TMP_Text Text ;
 
-    private void OnTriggerEnter(Collider other)
+    private void Start()
     {
-        startPosition = 0;
+        startPosition = Player.transform.position.z;
 
-        if (other.gameObject.TryGetComponent(out Ground ground))
+    }
+
+    private void Update()
+    {
+        
+        if (Player.transform.position.z != startPosition)
         {
-            if (Player.transform.position.z != startPosition)
-            {
-                endPosition = Player.transform.position.z;
-                Ñount();
-            }
+            endPosition = Player.transform.position.z;
+            Ñount();
         }
     }
 
     private void Ñount()
     {
-        
-        score = endPosition - startPosition;
+        score = (int)(endPosition - startPosition);
         Text.text = score.ToString();
     }
 
